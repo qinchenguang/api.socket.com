@@ -7,7 +7,7 @@ adminUserReady = false,
 receiveUser = null,//接受用户
 receiveUserKey = null,
 receiveUserReady = false;
-
+var PORT = getArgArray(process.argv)['PORT'] || '1112';
 var  server = ws.createServer(function(conn){
     //console.log(conn.key) socket 唯一标识key
     conn.on("text", function (str) {
@@ -54,5 +54,25 @@ var  server = ws.createServer(function(conn){
             adminUserReady = false;
         }
     });
-}).listen(8008);
-console.log("启动完毕..")
+}).listen(PORT);
+console.log("端口：" + PORT + "启动完毕..");
+
+
+
+function getArgArray(array){
+    var oldArray = array.slice(2);
+    var newObj = {};
+    oldArray.forEach(function(str){
+        if(str.indexOf('=') != -1){
+            var splitArray = str.split('=');
+            if(splitArray.length == 2){
+                var key = splitArray[0];
+                var value = splitArray[1];
+                if(key !== undefined && value !== undefined){
+                    newObj[key] = value;
+                }
+            }
+        }
+    })
+    return newObj;
+}
