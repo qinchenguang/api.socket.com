@@ -1,0 +1,19 @@
+{
+  "name": "api.socket.com",
+  "version": "1.0.0",
+  "description": "webssocket test",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev":"node app.js",
+    "build":"node app.js"
+  },
+  "keywords": [
+    "socket"
+  ],
+  "author": "qinchenguang",
+  "license": "ISC",
+  "dependencies": {
+    "nodejs-websocket": "^1.7.1"
+  }
+}
