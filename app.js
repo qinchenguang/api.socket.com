@@ -6,13 +6,17 @@ var  server = ws.createServer(function(conn){
     //console.log(conn.key) socket 唯一标识key
     conn.on("text", function (str) {
         var currentKey = conn.key;
-        var userNum = userList.length;
         var isHas = false;
-        for(var i = 0; i < userNum; i++){
+        for(var i = 0; i < userList.length; i++){
             if(userList[i].key == currentKey){
                 isHas = true;
             }else{
-                userList[i].sendText(str);
+                if(typeof userList[i] == 'object'){
+                    userList[i].sendText(str);
+                }else{
+                    userList.splice(i,1);
+                    i--;
+                }
             }
         }
         if(!isHas){
@@ -20,21 +24,32 @@ var  server = ws.createServer(function(conn){
         }
     })
     conn.on("close", function (code, reason) {
-        //console.log("关闭连接")
         var currentKey = conn.key;
-        var userNum = userList.length;
-        for(var i = 0; i < userNum; i++){
-            if(userList[i].key == currentKey){
+        //console.log(userList);
+        for(var i = 0; i < userList.length; i++){
+            if(typeof userList[i] == 'object'){
+                if(userList[i].key == currentKey){
+                    userList.splice(i,1);
+                    i--;
+                }
+            }else{
                 userList.splice(i,1);
+                i--;
             }
         }
     });
     conn.on("error", function (code, reason) {
-        //console.log("异常关闭")
-        var userNum = userList.length;
-        for(var i = 0; i < userNum; i++){
-            if(userList[i].key == currentKey){
+        //console.log("异常关闭") 
+        var currentKey = conn.key;
+        for(var i = 0; i < userList.length; i++){
+            if(typeof userList[i] == 'object'){
+                if(userList[i].key == currentKey){
+                    userList.splice(i,1);
+                    i--;
+                }
+            }else{
                 userList.splice(i,1);
+                i--;
             }
         }
     });
