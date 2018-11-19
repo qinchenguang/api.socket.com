@@ -1,57 +1,41 @@
 var ws = require('nodejs-websocket');
 console.log("开始启动服务器..");
-var adminUser = null, //控制用户
-adminUserKey = null,
-adminUserReady = false, 
-
-receiveUser = null,//接受用户
-receiveUserKey = null,
-receiveUserReady = false;
+var userList = [];
 var PORT = getArgArray(process.argv)['PORT'] || '1112';
 var  server = ws.createServer(function(conn){
     //console.log(conn.key) socket 唯一标识key
     conn.on("text", function (str) {
         var currentKey = conn.key;
-        if(str==="adminUser"){
-            adminUser = conn;
-            adminUserReady = true;
-            adminUserKey = conn.key;
+        var userNum = userList.length;
+        var isHas = false;
+        for(var i = 0; i < userNum; i++){
+            if(userList[i].key == currentKey){
+                isHas = true;
+            }else{
+                userList[i].sendText(str);
+            }
         }
-        if(str === "receiveUser"){
-            receiveUser = conn;
-            receiveUserReady = true;
-            receiveUserKey = conn.key;
-        }
-        if(currentKey == receiveUserKey && adminUserReady){
-            adminUser.sendText(str);
-        }else if(currentKey == adminUserKey && receiveUserReady){
-            receiveUser.sendText(str);
+        if(!isHas){
+            userList.push(conn);
         }
     })
     conn.on("close", function (code, reason) {
         //console.log("关闭连接")
         var currentKey = conn.key;
-        if(currentKey == receiveUserKey){
-            receiveUser = null;
-            receiveUserKey = null;
-            receiveUserReady = false; 
-        }else if(currentKey == adminUserKey){
-            adminUser = null;
-            adminUserKey = null;
-            adminUserReady = false;
+        var userNum = userList.length;
+        for(var i = 0; i < userNum; i++){
+            if(userList[i].key == currentKey){
+                userList.splice(i,1);
+            }
         }
     });
     conn.on("error", function (code, reason) {
         //console.log("异常关闭")
-        var currentKey = conn.key;
-        if(currentKey == receiveUserKey){
-            receiveUser = null;
-            receiveUserKey = null;
-            receiveUserReady = false; 
-        }else if(currentKey == adminUserKey){
-            adminUser = null;
-            adminUserKey = null;
-            adminUserReady = false;
+        var userNum = userList.length;
+        for(var i = 0; i < userNum; i++){
+            if(userList[i].key == currentKey){
+                userList.splice(i,1);
+            }
         }
     });
 }).listen(PORT);
